@@ -1,0 +1,40 @@
+@startuml 
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_AS_SKETCH
+
+Person(funcionario_sion, "Funcionario", "Funcionario de SION")
+Person(freelancer, "Freelancer", "Multinivelista de SION")
+
+System(webservices_banca, "WebServices","Web Services para Banca")
+
+
+package "Conexion" <<boundary>> as conexion {
+    Container(conexion_erp, "Conexion", "Delphi Pascal", "Sistema ERP")
+    Container(guardian, "Guardian", "Visual Basic", "Sistema Multinivel")
+
+    Container(sql_database, "Database ERP","SQL SERVER", "Almacena la informacion generada en el sistema ERP")
+    Container(mysql_database, "Database Multinivel","MySQL", "Almacena la informacion generada en el sistema Multinivel")
+}
+
+Rel(conexion_erp, guardian, "Alimenta")
+
+Rel(conexion_erp, sql_database, "consulta y guarda en")
+Rel(guardian, mysql_database, "consulta y guarda en")
+
+Rel(webservices_banca, conexion_erp, "usa")
+
+Rel(funcionario_sion, conexion_erp, "usa")
+Rel(freelancer, guardian, "compra y vende", "http")
+
+
+System(email, "exchange", "Microsoft Exchange email system")
+
+Rel(conexion_erp, email, "Envia correo", "smtp")
+Rel(email, freelancer, "Envia correo a", "smtp")
+
+
+
+
+@enduml

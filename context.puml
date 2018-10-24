@@ -1,0 +1,22 @@
+@startuml 
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_AS_SKETCH
+
+Person(funcionario_sion, "Funcionario", "Funcionario de SION")
+Person(freelancer, "Freelancer", "Multinivelista de SION")
+System(webservices_banca, "WebServices","Web Services para Banca")
+
+Container(conexion, "Conexion", "Pascal", "Sistema ERP y Multinivel del Grupo Sion")
+
+System(email, "exchangue", "Microsoft Exchangue email system")
+
+Rel(funcionario_sion, conexion, "usa")
+Rel(freelancer, conexion, "compra y vende", "http")
+
+Rel(conexion, email, "Envia correo", "smtp")
+Rel(email, freelancer, "Envia correo a", "smtp")
+Rel(webservices_banca, conexion, "usa")
+
+@enduml
