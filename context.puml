@@ -2,7 +2,7 @@
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
-LAYOUT_AS_SKETCH
+LAYOUT_WITH_LEGEND
 
 Person(funcionario_sion, "Funcionario", "Funcionario de SION")
 Person(freelancer, "Freelancer", "Multinivelista de SION")

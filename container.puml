@@ -2,39 +2,57 @@
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
-LAYOUT_AS_SKETCH
+LAYOUT_TOP_DOWN
 
 Person(funcionario_sion, "Funcionario", "Funcionario de SION")
 Person(freelancer, "Freelancer", "Multinivelista de SION")
 
 System(webservices_banca, "WebServices","Web Services para Banca")
 
-
 package "Conexion" <<boundary>> as conexion {
     Container(conexion_erp, "Conexion", "Delphi Pascal", "Sistema ERP")
-    Container(guardian, "Guardian", "Visual Basic", "Sistema Multinivel")
+    Container(web_reserva, "Web de reservas", "PHP 7", "Web para la reserva de productos")
 
-    Container(sql_database, "Database ERP","SQL SERVER", "Almacena la informacion generada en el sistema ERP")
-    Container(mysql_database, "Database Multinivel","MySQL", "Almacena la informacion generada en el sistema Multinivel")
+    Container(web_services, "Web Services para Banca", "PHP", "Web Services para los servicios en Banca")
+    
+    Container(guardian, "Guardian", "Visual Basic", "Sistema Multinivel")
+    Container(web_guardian, "Web multinivel", "PHP 7", "Web de Multinivel")
+
+    Container(winservice_venta, "Migracion de ventas", ".Net c#", "Windows Services para la migracion de ventas")
+    Container(winservice_reversiones, "Reversiones de ventas", ".Net c#", "Windows Services para la reversiones de ventas")
+    Container(winservice_liberacion_reservas, "Liberacion de Pre-Reservas", ".Net c#", "Windows Services para la liberacion de prereservas y reservas")
+
+    Container(sql_database, "Database ERP","SQL SERVER 2012", "Almacena la informacion generada en el sistema ERP")
+    Container(mysql_database, "Database Multinivel","MySQL 5.5", "Almacena la informacion generada en el sistema Multinivel")
 }
 
 Rel(conexion_erp, guardian, "Alimenta")
 
 Rel(conexion_erp, sql_database, "consulta y guarda en")
-Rel(guardian, mysql_database, "consulta y guarda en")
 
-Rel(webservices_banca, conexion_erp, "usa")
+Rel(winservice_venta, sql_database, "consulta")
+Rel(winservice_venta, mysql_database, "guarda en")
+Rel(winservice_reversiones, sql_database, "consulta")
+Rel(winservice_reversiones, mysql_database, "guarda en")
+Rel(winservice_liberacion_reservas, sql_database, "consulta y guarda en")
+
+Rel(guardian, mysql_database, "consulta y guarda en")
+Rel(web_guardian, mysql_database, "consulta y guarda en")
+
+Rel(webservices_banca, web_services, "usa")
+Rel(web_services, sql_database, "obtiene y guarda")
 
 Rel(funcionario_sion, conexion_erp, "usa")
-Rel(freelancer, guardian, "compra y vende", "http")
-
+Rel(freelancer, web_reserva, "compra y vende", "http")
+Rel(freelancer, web_guardian, "gestiona su equipo", "http")
+Rel(web_reserva, sql_database, "Obtiene y guarda")
 
 System(email, "exchange", "Microsoft Exchange email system")
 
 Rel(conexion_erp, email, "Envia correo", "smtp")
+Rel(web_reserva, email, "Envia correo", "smtp")
+Rel(web_guardian, email, "Envia correo", "smtp")
+
 Rel(email, freelancer, "Envia correo a", "smtp")
-
-
-
 
 @enduml

@@ -1,0 +1,87 @@
+@startuml 
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND
+
+Person(funcionario_sion, "Funcionario", "Funcionario de SION")
+Person(freelancer, "Freelancer", "Multinivelista de SION")
+
+System(webservices_banca, "WebServices","Web Services para Banca")
+
+package "Conexion" <<boundary>> as conexion {
+    package "Conexion ERP" <<boundary>> as conexion_erp {
+        Container(conexion_app, "Conexion Presentation Layer", "Delphi Pascal, Form", "Capa de Presentacon del ERP")
+        Container(conexion_bussines, "Business Layer", "Delphi Pascal", "Capa de negocio del ERP")
+        Container(ubdatos, "Data Access Layer", "Delphi Pascal", "Capa de conexion al almacen de datos")
+
+        Container(conexion_webservice, "Conexion Web Services", "PHP", "Capa de web services para banca")
+        Container(conexion_webservice_ubdatos, "Web Services Data Access Layer", "PHP", "Capa de acceso a datos para los web services de la banca")
+
+        Container(web_reserva, "Web de Reservas", "PHP 7", "Web de reservas y compras de productos")
+    }
+
+    package "Win Services Ventas" <<boundary>> as winservices_migracion{
+        Container(winservices_migracion_ventas, "Windows Services de Migracion de Ventas", ".Net C#", "Servicio para la migracion de ventas al sistema Multinivel")
+        Container(winservices_migracion_ventas_datos,"Data Access Layer", ".Net Entity Framework", "Capa de conexio al almacen de datos")
+    }
+
+    package "Win Services Reversiones" <<boundary>> as winservices_reversiones{
+        Container(winservices_ventas_revertidas, "Windows Services de Migracion de Ventas", ".Net C#", "Servicio para la migracion de reversiones al sistema Multinivel")
+        Container(winservices_ventas_revertidas_datos,"Data Access Layer", ".Net Entity Framework", "Capa de conexio al almacen de datos")
+    }
+    package "Win Services Levantar Pre-Reservas" <<boundary>> as winservices_levantar_prereservas{
+        Container(winservices_levante_prereservas, "Windows Services de Liberacion de Prereservas y Reservas", ".Net C#", "Servicio para el levantamiento de prereservas y reservas para promociones")
+        Container(winservices_levante_prereservas_datos,"Data Access Layer", ".Net Entity Framework", "Capa de conexion al almacen de datos")
+    }
+
+    package "Guardian" <<boundary>> as guardian{
+        Container(guardian_app, "Guardian Presetation Layer", "Visual Basic", "Capa de presentacion" )
+        Container(guardian_datos, "Guardian Data Access Layer", "Visual Basic", "Capa de Acceso a datos")
+
+        Container(guardian_web, "Web Multinivel", "PHP 7", "Web Multinivel para la gestion de los equipos")
+    }
+
+    Container(sql_database, "Database ERP","SQL SERVER 2012", "Almacena la informacion generada en el sistema ERP")
+    Container(mysql_database, "Database Multinivel","MySQL 5.5", "Almacena la informacion generada en el sistema Multinivel")
+}
+
+Rel(winservices_levante_prereservas_datos, sql_database, "Obtiene y guarda")
+Rel(winservices_levante_prereservas, winservices_levante_prereservas_datos, "Usa")
+
+
+
+Rel(conexion_app, conexion_bussines, "usa")
+Rel(conexion_bussines, ubdatos, "usa")
+
+Rel(guardian_app, guardian_datos, "usa")
+Rel(guardian_web, mysql_database, "obtiene")
+
+Rel(winservices_ventas_revertidas_datos, sql_database, "Obtiene y guarda las reversiones")
+Rel(winservices_ventas_revertidas_datos, mysql_database, "Guarda las reversiones en el sistema multinivel")
+Rel(winservices_ventas_revertidas, winservices_ventas_revertidas_datos, "Usa")
+
+Rel(winservices_migracion_ventas_datos, sql_database, "Obtiene")
+Rel(winservices_migracion_ventas, winservices_migracion_ventas_datos, "Usa")
+Rel(winservices_migracion_ventas_datos, mysql_database, "Guarda las ventas")
+
+Rel(ubdatos, sql_database, "consulta y guarda en")
+Rel(guardian_datos, mysql_database, "consulta y guarda en")
+Rel(conexion_webservice_ubdatos, sql_database, "usa")
+Rel(conexion_webservice, conexion_webservice_ubdatos, "usa")
+
+Rel(webservices_banca, conexion_webservice, "usa")
+
+Rel(funcionario_sion, conexion_app, "usa")
+Rel(freelancer, guardian_web, "Gestiona su equipo", "http")
+Rel(freelancer, web_reserva, "compra y vende", "http")
+Rel(web_reserva, sql_database, "obtiene y guarda")
+
+System(email, "exchange", "Microsoft Exchange email system")
+
+Rel(conexion_bussines, email, "Envia correo", "smtp")
+Rel(web_reserva, email, "Envia correo", "smtp")
+Rel(guardian_web, email, "Envia correo", "smtp")
+Rel(email, freelancer, "Envia correo a", "smtp")
+
+@enduml
